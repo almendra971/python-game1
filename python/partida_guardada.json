@@ -8,8 +8,14 @@
       "nombre": "Combustible",
       "cantidad": 3
     },
-    null,
-    null,
+    {
+      "nombre": "Calcita",
+      "cantidad": 2
+    },
+    {
+      "nombre": "Roca",
+      "cantidad": 2
+    },
     null,
     null,
     null,

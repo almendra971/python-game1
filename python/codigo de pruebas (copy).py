@@ -70,6 +70,27 @@ def main():
             
             if mostrar_mundo:
                 inventario.handle_event(event)
+    
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+                    item_en_mano = inventario.get_item_seleccionado()
+                    pico_equipado = item_en_mano is not None and item_en_mano.nombre == "Pico"
+                    
+                    # Bandera para no recoger dos cosas al mismo tiempo
+                    objeto_interactuado = False
+
+                    # PRIORIDAD 1: Calcita (Requiere Pico)
+                    for c in mundo.calcita[:]: 
+                        if personaje.esta_cerca(c):
+                            if pico_equipado:
+                                if inventario.agregar_item("Calcita", 1):
+                                    mundo.calcita.remove(c)
+                                    print("✓ Calcita minada con el pico")
+                                else:
+                                    print("⚠ Inventario lleno")
+                            else:
+                                print("¡Necesitas equipar el Pico para minar Calcita!")
+                            objeto_interactuado = True
+                            break # Sale del bucle de calcita
                 
             if mostrar_dialogos:
                 if capturando_nombre:
@@ -106,6 +127,30 @@ def main():
             
          
             if mostrar_mundo:
+                inventario.handle_event(event)
+    
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_e:     # 1. Obtener qué tiene el personaje en la mano
+                        item_en_mano = inventario.get_item_seleccionado()
+            
+            #  Intentar recoger Calcita
+            #  Solo si tiene el Pico en la mano
+                        pico_equipado = item_en_mano is not None and item_en_mano.nombre == "Pico"
+            
+                        encontrado = False
+                        for c in mundo.calcita[:]: 
+                            if personaje.esta_cerca(c):
+                                if pico_equipado:
+                                    if inventario.agregar_item("Calcita", 1):
+                                        mundo.calcita.remove(c)
+                                        print("✓ Calcita minada con el pico")
+                                        encontrado = True
+                                        break
+                                else:
+                                    print("¡Necesitas equipar el Pico para minar Calcita!")
+                                    encontrado = True # Para que no intente recoger otra cosa a la vez
+                                    break
+       
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_e:
                         
@@ -153,6 +198,8 @@ def main():
 
        
             keys = pygame.key.get_pressed()
+            if keys[pygame.K_g]:
+                personaje.move(-5, 0, mundo)
             if keys[pygame.K_a]:
                 personaje.move(-5, 0, mundo)
             if keys[pygame.K_d]:
@@ -162,12 +209,12 @@ def main():
             if keys[pygame.K_s]:
                 personaje.move(0, 5, mundo)
             
-            # --- CONFIGURACIÓN DE FUENTE ---
+            
             font_instruc = pygame.font.SysFont("Arial", 14)
 
-# 1. LÍNEA QUE SE QUEDA ARRIBA (Hotbar y Mouse)
+
             render_mouse = font_instruc.render("1-0: Hotbar | Mouse: Arrastrar items", True, (150, 255, 150))
-            ventana.blit(render_mouse, (10, 555)) # Se mantiene en Y=10
+            ventana.blit(render_mouse, (10, 555)) # 
 
 # 2. LÍNEA QUE MUEVES HACIA ABAJO (Recoger e Inventario)
             render_recoger = font_instruc.render("E: Recoger objetos | I: Inventario", True, (150, 255, 150))

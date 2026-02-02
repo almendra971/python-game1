@@ -29,8 +29,23 @@ class Personaje:
     def check_collision(self, x, y, obj):
         return (x < obj.x + obj.size and x + self.size > obj.x and y < obj.y + obj.size and y + self.size > obj.y)       
             
+    # Dentro de la clase Personaje en personajes.py
+    def esta_cerca(self, objeto, distancia=40):
+        dist_x = abs(self.x - objeto.x)
+        dist_y = abs(self.y - objeto.y)
     
-    def near(self, obj):
-        return(abs(self.x - obj.x) <= self.size + obj.size and
-              (abs(self.x - obj.x) <= self.size + obj.size))
+    # Retorna True si la distancia en ambos ejes es menor al límite
+        return dist_x < distancia and dist_y < distancia
     
+    def recolectar(self, lista_objetos, inventario_sistema, nombre_item):
+        for objeto in lista_objetos[:]:  # Usamos [:] para poder borrar mientras recorremos
+            if self.near(objeto):
+                # Intentamos añadir al inventario avanzado que tienes en el main
+                if inventario_sistema.agregar_item(nombre_item, 1):
+                    lista_objetos.remove(objeto)
+                    print(f"Has recogido: {nombre_item}")
+                    return True # Para saber que ya recogimos algo y no seguir buscando
+                else:
+                    print("¡Inventario lleno!")
+                    return False
+        return False

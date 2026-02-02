@@ -19,7 +19,6 @@ class Item:
 
 
 class Inventory:
-    """Sistema de inventario estilo Terraria"""
     
     def __init__(self, screen_width, screen_height):
         self.screen_width = screen_width
@@ -48,7 +47,7 @@ class Inventory:
         self.tooltip_item = None
         self.tooltip_pos = (0, 0)
         
-        # Colores Terraria-style
+        # Colores inventario
         self.color_fondo = (40, 40, 60)
         self.color_slot = (26, 26, 46)
         self.color_slot_hover = (52, 52, 76)
@@ -94,6 +93,13 @@ class Inventory:
         self.visible = not self.visible
         if not self.visible:
             self.cancelar_drag()
+
+    def get_item_seleccionado(self):
+        
+        # Verificamos que el índice esté dentro del rango de la hotbar
+        if 0 <= self.hotbar_seleccionado < len(self.hotbar):
+            return self.hotbar[self.hotbar_seleccionado]
+        return None
     
     def agregar_item(self, nombre_item, cantidad=1):
         """Agrega items al inventario (con stacking automático)"""
@@ -112,8 +118,22 @@ class Inventory:
                     agregar = min(espacio_disponible, cantidad_restante)
                     slot.cantidad += agregar
                     cantidad_restante -= agregar
-                    if cantidad_restante <= 0:
-                        return True
+                    if cantidad_restante <= 0: return True
+        while cantidad_restante > 0:
+            slot_vacio = self._encontrar_slot_vacio()
+            if slot_vacio is None: return False
+        
+            nuevo_item = item_template.copy()
+            agregar = min(item_template.max_stack, cantidad_restante)
+            nuevo_item.cantidad = agregar
+            cantidad_restante -= agregar
+        
+        tipo_slot, index = slot_vacio
+        if tipo_slot == "hot":
+            self.hotbar[index] = nuevo_item
+        else:
+            self.slots_inventario[index] = nuevo_item #solo se llenan los slots que no tengan el pico y el combustible
+            return True
         
         # Luego buscar slots vacíos
         while cantidad_restante > 0:
@@ -405,6 +425,7 @@ class Inventory:
         # Soltar mouse
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self._handle_release(event.pos)
+
     
     def _handle_click(self, pos):
         """Maneja clicks del mouse"""
