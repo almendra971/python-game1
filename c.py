@@ -8,6 +8,4 @@ height = 600
 
 ventana = pygame.display.set_mode((texturas.width, texturas.height))
 
-pygame.display.set_caption("prueba juego") 
-
-
+pygame.display.set_caption("prueba juego")
